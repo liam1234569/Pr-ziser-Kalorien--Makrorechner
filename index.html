@@ -199,7 +199,7 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             user-select: none;
             z-index: 100;
-            cursor: pointer; /* Beide sind jetzt anklickbar */
+            cursor: pointer;
             transition: all 0.2s ease;
         }
 
@@ -357,33 +357,33 @@
         <div class="row">
             <div class="form-group">
                 <label for="gewicht">Gewicht (kg)</label>
-                <input type="number" id="gewicht" required min="30" max="250" value="69">
+                <input type="number" id="gewicht" required min="30" max="250">
             </div>
             <div class="form-group">
                 <label for="groesse">Größe (cm)</label>
-                <input type="number" id="groesse" required min="100" max="250" value="175">
+                <input type="number" id="groesse" required min="100" max="250">
             </div>
             <div class="form-group">
                 <label for="alter">Alter (Jahre)</label>
-                <input type="number" id="alter" required min="10" max="100" value="16">
+                <input type="number" id="alter" required min="10" max="100">
             </div>
         </div>
 
         <h3>2. Alltagsbewegung</h3>
         <div class="form-group">
             <label for="schritte">Schritte pro 24h</label>
-            <input type="number" id="schritte" required min="0" max="50000" value="8000">
+            <input type="number" id="schritte" required min="0" max="50000">
         </div>
 
         <h3>3. Aktives Training</h3>
         <div class="row">
             <div class="form-group">
                 <label for="trainingsMinuten">Minuten pro Trainingstag</label>
-                <input type="number" id="trainingsMinuten" required min="0" max="300" value="70">
+                <input type="number" id="trainingsMinuten" required min="0" max="300">
             </div>
             <div class="form-group">
                 <label for="trainingsTage">Tage pro Woche Sport</label>
-                <input type="number" id="trainingsTage" required min="0" max="7" value="5">
+                <input type="number" id="trainingsTage" required min="0" max="7">
             </div>
         </div>
 
@@ -444,7 +444,7 @@
         <div class="code-block">Kalorien = Schritte × Gewicht × 0.00055</div>
 
         <h4>3. Aktives Training (Sport)</h4>
-        <p>Ein intensives Training wird mit ca. 6 kcal pro Minute berechnet. Da du nicht jeden Tag Sport machst, verteilt der Code den Wochenverbrauch gleichmäßig auf 7 Tage:</p>
+        <p>Ein intensives Training wird mit ca. 6 kcal pro Minute berechnet. Da du nicht jeden Tag Sport macht, verteilt der Code den Wochenverbrauch gleichmäßig auf 7 Tage:</p>
         <div class="code-block">Sport-kcal pro Tag = (Minuten × 6 kcal × Trainingstage) / 7</div>
 
         <h4>4. Nahrungsverbrennung (Thermischer Effekt - TEF)</h4>
