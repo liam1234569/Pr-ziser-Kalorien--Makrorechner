@@ -30,6 +30,51 @@
             color: var(--text-color);
         }
 
+        /* --- INTRO / LOADING SCREEN STYLES --- */
+        #introOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-gradient);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        #introText {
+            font-size: 26px;
+            font-weight: bold;
+            text-align: center;
+            max-width: 80%;
+            line-height: 1.4;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-left-color: white;
+            animation: spin 1s linear infinite;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            margin-top: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- RECHNER CONTENT STYLES --- */
         .container {
             background: var(--card-bg);
             padding: 30px;
@@ -341,6 +386,11 @@
 </head>
 <body>
 
+<div id="introOverlay">
+    <div id="introText">Herzlich Willkommen</div>
+    <div id="introSpinner" class="spinner"></div>
+</div>
+
 <div class="container">
     <h1>Präziser Kalorien- & Makrorechner</h1>
     
@@ -444,7 +494,7 @@
         <div class="code-block">Kalorien = Schritte × Gewicht × 0.00055</div>
 
         <h4>3. Aktives Training (Sport)</h4>
-        <p>Ein intensives Training wird mit ca. 6 kcal pro Minute berechnet. Da du nicht jeden Tag Sport macht, verteilt der Code den Wochenverbrauch gleichmäßig auf 7 Tage:</p>
+        <p>Ein intensives Training wird mit ca. 6 kcal pro Minute berechnet. Da du nicht jeden Tag Sport machst, verteilt der Code den Wochenverbrauch gleichmäßig auf 7 Tage:</p>
         <div class="code-block">Sport-kcal pro Tag = (Minuten × 6 kcal × Trainingstage) / 7</div>
 
         <h4>4. Nahrungsverbrennung (Thermischer Effekt - TEF)</h4>
@@ -477,6 +527,45 @@
 </div>
 
 <script>
+    // --- 0. INTRO SCREEN ANIMATIONS-TIMELINE ---
+    window.addEventListener('DOMContentLoaded', () => {
+        const introOverlay = document.getElementById('introOverlay');
+        const introText = document.getElementById('introText');
+        const introSpinner = document.getElementById('introSpinner');
+
+        // Schritt 1: "Herzlich Willkommen" sofort einblenden
+        setTimeout(() => {
+            introText.style.opacity = '1';
+        }, 200);
+
+        // Schritt 2: Nach 1,5 Sek ersten Text ausblenden und Text wechseln
+        setTimeout(() => {
+            introText.style.opacity = '0';
+            setTimeout(() => {
+                introText.innerText = 'zu deinem Kalorien- & Makrorechner';
+                introText.style.opacity = '1';
+            }, 500);
+        }, 1700);
+
+        // Schritt 3: Nach weiteren 1,8 Sek den Text ausblenden und den Ladekreis zeigen
+        setTimeout(() => {
+            introText.style.opacity = '0';
+            setTimeout(() => {
+                introText.style.display = 'none';
+                introSpinner.style.opacity = '1';
+            }, 500);
+        }, 4000);
+
+        // Schritt 4: Nach 1,2 Sek Ladezeit das gesamte Overlay verschwinden lassen
+        setTimeout(() => {
+            introOverlay.style.opacity = '0';
+            introOverlay.style.visibility = 'hidden';
+            setTimeout(() => {
+                introOverlay.style.display = 'none';
+            }, 600);
+        }, 5500);
+    });
+
     // --- 1. MODAL LOGIK (FORMEL-SEITE) ---
     const formulaModal = document.getElementById('formulaModal');
     const openFormulaBtn = document.getElementById('openModalBtn');
