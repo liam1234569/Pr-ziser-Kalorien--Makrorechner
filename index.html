@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Präziser Kalorien- & Makrorechner</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-color: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 24px;
+        }
+
+        h3 {
+            margin: 15px 0 8px 0;
+            color: var(--primary);
+            font-size: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 3px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .row .form-group {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            padding: 8px 0;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button.btn-submit {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 15px;
+        }
+
+        button.btn-submit:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Ergebnisse */
+        .results {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            display: none;
+        }
+
+        .results h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .details-box {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .details-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .details-row.total {
+            font-weight: bold;
+            border-top: 1px dashed #cbd5e0;
+            padding-top: 6px;
+            margin-top: 6px;
+            font-size: 15px;
+        }
+
+        .macro-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .macro-card {
+            flex: 1;
+            text-align: center;
+            padding: 12px 8px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .protein-box { background-color: #feebcb; color: #c05621; }
+        .carbs-box { background-color: #e3faf2; color: #0ca678; }
+        .fett-box { background-color: #fed7d7; color: #9b2c2c; }
+
+        .macro-card span {
+            display: block;
+            font-size: 18px;
+            margin-top: 4px;
+        }
+
+        /* --- STYLING FÜR DIE BOTTOM-ELEMENTE --- */
+        .watermark, .formula-btn {
+            position: fixed;
+            bottom: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            user-select: none;
+            z-index: 100;
+            cursor: pointer; /* Beide sind jetzt anklickbar */
+            transition: all 0.2s ease;
+        }
+
+        .formula-btn {
+            left: 15px;
+        }
+
+        .watermark {
+            right: 15px;
+        }
+
+        .watermark:hover, .formula-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+            color: rgba(255, 255, 255, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- HAFTUNGSAUSSCHLUSS (DISCLAIMER) --- */
+        .disclaimer {
+            position: fixed;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 11px;
+            text-align: center;
+            max-width: 50%;
+            line-height: 1.4;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .disclaimer { display: none; }
+        }
+
+        /* --- STYLING FÜR DIE MODAL OVERLAYS --- */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            padding: 20px;
+        }
+
+        .modal.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            max-width: 550px;
+            width: 100%;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-content.centered-text {
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 5px;
+            font-size: 20px;
+        }
+
+        .modal-content h4 {
+            margin-top: 15px;
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .modal-content p, .modal-content li {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #4a5568;
+            margin-top: 8px;
+        }
+
+        .modal-content a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .modal-content a:hover {
+            text-decoration: underline;
+        }
+
+        .modal-content ul {
+            margin-left: 20px;
+            margin-top: 5px;
+        }
+
+        .code-block {
+            background: #f7fafc;
+            padding: 6px 10px;
+            border-left: 3px solid var(--primary);
+            font-family: monospace;
+            font-size: 12.5px;
+            margin: 6px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .close-btn {
+            display: block;
+            width: 100%;
+            background: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #cbd5e0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Präziser Kalorien- & Makrorechner</h1>
+    
+    <form id="calForm">
+        <h3>1. Körperdaten</h3>
+        <div class="form-group">
+            <label>Geschlecht</label>
+            <div class="radio-group">
+                <label><input type="radio" name="geschlecht" value="m" checked> Männlich</label>
+                <label><input type="radio" name="geschlecht" value="w"> Weiblich</label>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label for="gewicht">Gewicht (kg)</label>
+                <input type="number" id="gewicht" required min="30" max="250" value="69">
+            </div>
+            <div class="form-group">
+                <label for="groesse">Größe (cm)</label>
+                <input type="number" id="groesse" required min="100" max="250" value="175">
+            </div>
+            <div class="form-group">
+                <label for="alter">Alter (Jahre)</label>
+                <input type="number" id="alter" required min="10" max="100" value="16">
+            </div>
+        </div>
+
+        <h3>2. Alltagsbewegung</h3>
+        <div class="form-group">
+            <label for="schritte">Schritte pro 24h</label>
+            <input type="number" id="schritte" required min="0" max="50000" value="8000">
+        </div>
+
+        <h3>3. Aktives Training</h3>
+        <div class="row">
+            <div class="form-group">
+                <label for="trainingsMinuten">Minuten pro Trainingstag</label>
+                <input type="number" id="trainingsMinuten" required min="0" max="300" value="70">
+            </div>
+            <div class="form-group">
+                <label for="trainingsTage">Tage pro Woche Sport</label>
+                <input type="number" id="trainingsTage" required min="0" max="7" value="5">
+            </div>
+        </div>
+
+        <h3>4. Dein Ziel</h3>
+        <div class="form-group">
+            <label for="ziel">Ziel auswählen</label>
+            <select id="ziel">
+                <option value="0" selected>Gewicht halten</option>
+                <option value="-400">Abnehmen (-400 kcal)</option>
+                <option value="300">Zunehmen (+300 kcal)</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn-submit">Berechnen</button>
+    </form>
+
+    <div class="results" id="resultsBox">
+        <h2>Dein Tagesbedarf:</h2>
+        
+        <div class="details-box">
+            <div class="details-row"><span>Grundumsatz:</span><span id="resGrund">0 kcal</span></div>
+            <div class="details-row"><span>Alltagsbewegung (Schritte):</span><span id="resSchritte">0 kcal</span></div>
+            <div class="details-row"><span>Aktives Training (Schnitt/Tag):</span><span id="resSport">0 kcal</span></div>
+            <div class="details-row"><span>Nahrungsverbrennung (TEF):</span><span id="resTef">0 kcal</span></div>
+            <div class="details-row total"><span>Empfohlene Zielkalorien:</span><span id="resGesamt">0 kcal</span></div>
+        </div>
+
+        <div class="macro-container">
+            <div class="macro-card protein-box">Protein<span id="resProtein">0g</span></div>
+            <div class="macro-card carbs-box">Kohlenhydrate<span id="resCarbs">0g</span></div>
+            <div class="macro-card fett-box">Fett<span id="resFett">0g</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="formula-btn" id="openModalBtn">Formeln</div>
+
+<div class="disclaimer">
+    Hinweis: Für die exakte Richtigkeit der berechneten Daten sowie mögliche gesundheitliche Folgen übernehmen wir keine Haftung.
+</div>
+
+<div class="watermark" id="openCreatorBtn">Created by @liam1234569</div>
+
+<div class="modal" id="formulaModal">
+    <div class="modal-content">
+        <h2>Verwendete Formeln & Logik</h2>
+        
+        <h4>1. Grundumsatz (Mifflin-St. Jeor Formel)</h4>
+        <p>Berechnet die Energie, die der Körper im absoluten Ruhezustand braucht:</p>
+        <div class="code-block">
+            Männer: (10 × kg) + (6.25 × cm) - (5 × Jahre) + 5<br>
+            Frauen: (10 × kg) + (6.25 × cm) - (5 × Jahre) - 161
+        </div>
+
+        <h4>2. Alltagsbewegung (Schritte)</h4>
+        <p>Die Schritte werden über das Körpergewicht in verbrannte Energie umgerechnet (Näherungswert für die Bewegungs-Effizienz):</p>
+        <div class="code-block">Kalorien = Schritte × Gewicht × 0.00055</div>
+
+        <h4>3. Aktives Training (Sport)</h4>
+        <p>Ein intensives Training wird mit ca. 6 kcal pro Minute berechnet. Da du nicht jeden Tag Sport machst, verteilt der Code den Wochenverbrauch gleichmäßig auf 7 Tage:</p>
+        <div class="code-block">Sport-kcal pro Tag = (Minuten × 6 kcal × Trainingstage) / 7</div>
+
+        <h4>4. Nahrungsverbrennung (Thermischer Effekt - TEF)</h4>
+        <p>Der Körper verbraucht beim Kauen und Verdauen Energie. Das sind ca. 8,5% der Summe aller oberen Werte.</p>
+
+        <h4>5. Makronährstoff-Aufteilung</h4>
+        <ul>
+            <li><strong>Protein:</strong> 2,0 Gramm pro kg Körpergewicht (1g = 4 kcal)</li>
+            <li><strong>Fett:</strong> 1,0 Gramm pro kg Körpergewicht (1g = 9 kcal)</li>
+            <li><strong>Kohlenhydrate:</strong> Der mathematische Kalorien-Rest (1g = 4 kcal)</li>
+        </ul>
+
+        <button class="close-btn" id="closeModalBtn">Schließen</button>
+    </div>
+</div>
+
+<div class="modal" id="creatorModal">
+    <div class="modal-content centered-text">
+        <h2>Über den Entwickler</h2>
+        
+        <p><strong>Entwickelt von:</strong>@liam1234569</p>
+        
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0;">
+        
+        <p><strong>Kontakt:</strong> <a href="mailto:liam1234569@creater.de">liam1234569@creater.de</a></p>
+        <p><strong>GitHub / Insta:</strong> <a href="#">@liam1234569</a></p>
+
+        <button class="close-btn" id="closeCreatorBtn">Zurück zum Rechner</button>
+    </div>
+</div>
+
+<script>
+    // --- 1. MODAL LOGIK (FORMEL-SEITE) ---
+    const formulaModal = document.getElementById('formulaModal');
+    const openFormulaBtn = document.getElementById('openModalBtn');
+    const closeFormulaBtn = document.getElementById('closeModalBtn');
+
+    openFormulaBtn.addEventListener('click', () => formulaModal.classList.add('open'));
+    closeFormulaBtn.addEventListener('click', () => formulaModal.classList.remove('open'));
+    window.addEventListener('click', (e) => { if (e.target === formulaModal) formulaModal.classList.remove('open'); });
+
+    // --- 2. MODAL LOGIK (ERSTELLER-SEITE) ---
+    const creatorModal = document.getElementById('creatorModal');
+    const openCreatorBtn = document.getElementById('openCreatorBtn');
+    const closeCreatorBtn = document.getElementById('closeCreatorBtn');
+
+    openCreatorBtn.addEventListener('click', () => creatorModal.classList.add('open'));
+    closeCreatorBtn.addEventListener('click', () => creatorModal.classList.remove('open'));
+    window.addEventListener('click', (e) => { if (e.target === creatorModal) creatorModal.classList.remove('open'); });
+
+    // --- KALORIEN-BERECHNUNG LOGIK ---
+    document.getElementById('calForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const geschlecht = document.querySelector('input[name="geschlecht"]:checked').value;
+        const gewicht = parseFloat(document.getElementById('gewicht').value);
+        const groesse = parseFloat(document.getElementById('groesse').value);
+        const alter = parseInt(document.getElementById('alter').value);
+        const schritte = parseInt(document.getElementById('schritte').value);
+        const tMinuten = parseInt(document.getElementById('trainingsMinuten').value);
+        const tTage = parseInt(document.getElementById('trainingsTage').value);
+        const zielDefizit = parseFloat(document.getElementById('ziel').value);
+
+        let grundumsatz = 0;
+        if (geschlecht === 'm') {
+            grundumsatz = (10 * gewicht) + (6.25 * groesse) - (5 * alter) + 5;
+        } else {
+            grundumsatz = (10 * gewicht) + (6.25 * groesse) - (5 * alter) - 161;
+        }
+
+        const kalorienSchritte = schritte * gewicht * 0.00055;
+        const kcalProSitzung = tMinuten * 6; 
+        const kalorienSportProTag = (kcalProSitzung * tTage) / 7;
+
+        const temporaerUmsatz = grundumsatz + kalorienSchritte + kalorienSportProTag;
+        const tef = temporaerUmsatz * 0.085;
+
+        const erhaltungsKalorien = temporaerUmsatz + tef;
+        const zielKalorien = erhaltungsKalorien + zielDefizit;
+
+        const proteinG = gewicht * 2;
+        const fettG = gewicht * 1; 
+        
+        const proteinKcal = proteinG * 4;
+        const fettKcal = fettG * 9;
+        let restKcal = zielKalorien - (proteinKcal + fettKcal);
+        if (restKcal < 0) restKcal = 0;
+        const carbsG = restKcal / 4;
+
+        document.getElementById('resGrund').innerText = Math.round(grundumsatz) + ' kcal';
+        document.getElementById('resSchritte').innerText = Math.round(kalorienSchritte) + ' kcal';
+        document.getElementById('resSport').innerText = Math.round(kalorienSportProTag) + ' kcal';
+        document.getElementById('resTef').innerText = Math.round(tef) + ' kcal';
+        document.getElementById('resGesamt').innerText = Math.round(zielKalorien) + ' kcal';
+
+        document.getElementById('resProtein').innerText = Math.round(proteinG) + 'g';
+        document.getElementById('resFett').innerText = Math.round(fettG) + 'g';
+        document.getElementById('resCarbs').innerText = Math.round(carbsG) + 'g';
+
+        document.getElementById('resultsBox').style.display = 'block';
+    });
+</script>
+
+</body>
+</html>
